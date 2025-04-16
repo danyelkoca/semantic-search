@@ -29,7 +29,3 @@ __pycache__/
 # Download from below link
 # https://mcauleylab.ucsd.edu/public_datasets/data/amazon_2023/raw/meta_categories/meta_Amazon_Fashion.jsonl.gz
 etl/raw/meta_Amazon_Fashion.jsonl.gz
-
-# EDA is also not needed to run the app but it is useful for understanding the data we are dealing with
-# Uncomment below if you don't want to include it in the repo
-# eda/
