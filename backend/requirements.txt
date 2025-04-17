@@ -1,7 +1,7 @@
 fastapi
 uvicorn[standard]
 openai
-# weaviate-client
+weaviate-client
 # python-multipart
 python-dotenv
 

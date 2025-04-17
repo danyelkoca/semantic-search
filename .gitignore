@@ -1,3 +1,5 @@
+# .gitignore
+
 # Dependencies
 node_modules/
 *.log*
@@ -28,4 +30,4 @@ __pycache__/
 # Not tracked because of large file size
 # Download from below link
 # https://mcauleylab.ucsd.edu/public_datasets/data/amazon_2023/raw/meta_categories/meta_Amazon_Fashion.jsonl.gz
-etl/raw/meta_Amazon_Fashion.jsonl.gz
+etl/data

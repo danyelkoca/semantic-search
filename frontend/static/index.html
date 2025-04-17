@@ -34,15 +34,22 @@
             let query = document.getElementById('query').value;
             document.getElementById('results').innerText = "Loading...";
             try {
-                let resp = await fetch('/recommendations', {
-                    method: 'POST',
-                    headers: { 'Content-Type': 'application/json' },
-                    body: JSON.stringify({ "query": query })
-                });
+                let resp = await fetch(`/recommendations?query=${encodeURIComponent(query)}`);
                 let data = await resp.json();
+                console.log(data)
                 if (data.ok) {
-                    let html = `<p><strong>User Query:</strong> ${data.user_query}</p>`;
-                    html += `<p><strong>Embedding:</strong> ${JSON.stringify(data.embedding)}</p>`;
+                    let html = `<p><strong>User Query:</strong> ${data.user_query}</p><ul>`;
+                    for (let item of data.results) {
+                        html += `
+                          <li>
+                            <p><strong>${item.title || "Untitled"}</strong></p>
+                            <p><em>Store:</em> ${item.store || "Unknown"}</p>
+                            <p><em>Rating:</em> ${item.average_rating} ⭐ (${item.rating_number})</p>
+                            ${item.main_hi_res_image ? `<img src="https://m.media-amazon.com/images/I/${item.main_hi_res_image}" alt="Product image">` : ''}
+                          </li>
+                        `;
+                    }
+                    html += "</ul>";
                     document.getElementById('results').innerHTML = html;
                 } else {
                     document.getElementById('results').innerText = data.error || "An unknown error occurred.";

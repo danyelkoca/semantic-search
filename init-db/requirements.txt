@@ -1,0 +1,5 @@
+# init-db/requirements.txt
+
+weaviate-client
+requests
+python-dotenv
