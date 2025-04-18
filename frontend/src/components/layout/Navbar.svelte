@@ -69,14 +69,14 @@
     </div>
     <button class="lg:hidden text-sky-900 text-4xl cursor-pointer" on:click={toggleMenu} aria-label="Toggle menu"> ☰ </button>
     <nav class="hidden lg:flex space-x-4">
-      <a href="/best-selling" class="text-sky-900 font-bold">Best Selling</a>
-      <a href="/trending" class="text-sky-900 font-bold">Trending</a>
+      <a href="/best-sellers" class="text-sky-900">Best-Sellers</a>
+      <a href="/trending" class="text-sky-900">Trending</a>
     </nav>
   </div>
   {#if isMenuOpen}
     <nav class="lg:hidden bg-white border-t border-slate-200">
-      <a href="/best-selling" class="block px-4 py-2 text-sky-900 font-bold">Best Selling</a>
-      <a href="/trending" class="block px-4 py-2 text-sky-900 font-bold">Trending</a>
+      <a href="/best-sellers" class="block px-4 py-2 text-sky-900">Best-Sellers</a>
+      <a href="/trending" class="block px-4 py-2 text-sky-900">Trending</a>
     </nav>
   {/if}
 </header>

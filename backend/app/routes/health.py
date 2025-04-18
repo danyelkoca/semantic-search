@@ -3,10 +3,13 @@ import logging
 from fastapi import APIRouter
 from fastapi.responses import JSONResponse
 
+from backend.app.utils import rate_limit
+
 router = APIRouter()
 logger = logging.getLogger("semantic-search")
 
 
+@rate_limit("60/minute")
 @router.get("/health")
 async def health_check():
     try:

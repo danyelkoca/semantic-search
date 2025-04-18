@@ -1,15 +1,16 @@
 import logging
-from fastapi import Request, FastAPI
-from fastapi.exceptions import RequestValidationError
-from fastapi import HTTPException
-from starlette.responses import JSONResponse
-from starlette.status import HTTP_500_INTERNAL_SERVER_ERROR
+from contextlib import asynccontextmanager
+
+from fastapi import FastAPI, HTTPException, Request
 from fastapi.exception_handlers import (
     http_exception_handler,
     request_validation_exception_handler,
 )
-from contextlib import asynccontextmanager
-from .utils import get_redis_client, weaviate_client
+from fastapi.exceptions import RequestValidationError
+from starlette.responses import JSONResponse
+from starlette.status import HTTP_500_INTERNAL_SERVER_ERROR
+
+from backend.app.utils import get_redis_client, get_weaviate_client
 
 logger = logging.getLogger("semantic-search")
 slow_logger = logging.getLogger("slow-requests")
@@ -26,7 +27,8 @@ async def lifespan(app: FastAPI):
         logger.error(f"Error clearing Redis cache on startup: {e}")
     yield
     try:
-        weaviate_client.close()
+        client = get_weaviate_client()
+        client.close()
         logger.info("Weaviate client closed successfully")
     except Exception as e:
         logger.error(f"Error during shutdown: {e}")

@@ -1,25 +1,25 @@
 <script lang="ts">
   import { onMount } from "svelte";
-  import { trendingProducts } from "$stores/main";
+  import { trending } from "$stores/main";
 
   onMount(async () => {
-    if ($trendingProducts.length > 0) {
+    if ($trending.length > 0) {
       return;
     }
 
-    const endpoint = "http://localhost:8000/products/popular";
+    const endpoint = "http://localhost:8000/trending";
     const res = await fetch(endpoint);
     const data = await res.json();
 
     if (data.ok) {
-      trendingProducts.set(data.products);
+      trending.set(data.products);
     }
   });
 </script>
 
 <h2 class="text-2xl font-bold mb-4">Trending Products</h2>
 <div class="grid grid-cols-2 sm:grid-cols-3 md:grid-cols-4 xl:grid-cols-6 gap-4">
-  {#each $trendingProducts as product}
+  {#each $trending as product}
     <a href={`/products/${product.product_id}`} class="relative block group overflow-hidden rounded-lg shadow hover:shadow-lg transition">
       {#if product.main_hi_res_image.length > 0}
         <img

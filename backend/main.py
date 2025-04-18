@@ -4,8 +4,11 @@ import os
 from fastapi import FastAPI, HTTPException
 from fastapi.exceptions import RequestValidationError
 from fastapi.middleware.cors import CORSMiddleware
+from slowapi import Limiter
+from slowapi.middleware import SlowAPIMiddleware
+from slowapi.util import get_remote_address
 
-from app.middleware import (
+from backend.app.middleware import (
     custom_http_exception_handler,
     generic_exception_handler,
     lifespan,
@@ -13,7 +16,7 @@ from app.middleware import (
     log_slow_requests,
     validation_exception_handler,
 )
-from app.routes import routers
+from backend.app.routes import routers
 
 # Setup environment-based log level
 env = os.getenv("ENV", "development")
@@ -40,6 +43,11 @@ app = FastAPI(
 app.middleware("http")(log_slow_requests)
 app.middleware("http")(log_error_responses)
 
+# Global rate limiter
+limiter = Limiter(key_func=get_remote_address)
+app.state.limiter = limiter
+app.add_middleware(SlowAPIMiddleware)
+
 # CORS Middleware
 origins = (
     [
@@ -63,6 +71,6 @@ app.exception_handler(Exception)(generic_exception_handler)
 app.exception_handler(RequestValidationError)(validation_exception_handler)
 app.exception_handler(HTTPException)(custom_http_exception_handler)
 
-# Include all API routers
+# Include all API routers (each router should use app.state.limiter)
 for router in routers:
     app.include_router(router)

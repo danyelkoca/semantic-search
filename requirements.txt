@@ -1,0 +1,10 @@
+## needed for testing etc.
+## When running on docker, we have separate requirements for backend so this is not used.
+## This is mostly o for dev purposes
+
+fastapi
+redis
+weaviate-client
+slowapi
+uvicorn
+python-dotenv

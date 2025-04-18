@@ -19,7 +19,7 @@ format:
 
 # Run tests
 test:
-	pytest backend/tests/
-
+	PYTHONPATH=backend pytest backend/tests/
+	
 # Full local check before push
 check: lint test

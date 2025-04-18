@@ -5,7 +5,7 @@ from fastapi import APIRouter, Request
 from fastapi.responses import JSONResponse
 from weaviate.classes.query import Filter
 
-from app.utils import get_redis_client, product_collection, rate_limit
+from backend.app.utils import get_product_collection, get_redis_client, rate_limit
 
 router = APIRouter()
 logger = logging.getLogger("semantic-search")
@@ -21,6 +21,8 @@ async def get_products(request: Request, query: str = "", product_id: str = None
         return JSONResponse(
             status_code=400, content={"ok": False, "error": "Invalid product_id"}
         )
+
+    product_collection = get_product_collection()
 
     if product_id is not None:
         cached = await get_redis_client().get(f"product_id:{product_id}")
