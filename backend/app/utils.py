@@ -1,6 +1,9 @@
+from functools import wraps
+from typing import Callable
+
 import dotenv
-import os
 import weaviate
+from fastapi import Request
 
 # Load environment variables
 dotenv.load_dotenv()
@@ -29,3 +32,17 @@ weaviate_client = weaviate.connect_to_custom(
 )
 
 product_collection = weaviate_client.collections.get("Product")
+
+
+def rate_limit(limit_string: str):
+    def decorator(func: Callable):
+        @wraps(func)
+        async def wrapper(request: Request, *args, **kwargs):
+            limiter = request.app.state.limiter
+            route_limiter = limiter.limit(limit_string)(lambda req: req)
+            await route_limiter(request)
+            return await func(request, *args, **kwargs)
+
+        return wrapper
+
+    return decorator

@@ -1,19 +1,19 @@
-import os
 import logging
+import os
 
 from fastapi import FastAPI, HTTPException
-from fastapi.middleware.cors import CORSMiddleware
 from fastapi.exceptions import RequestValidationError
+from fastapi.middleware.cors import CORSMiddleware
 
 from app.middleware import (
-    lifespan,
-    log_slow_requests,
-    log_error_responses,
     custom_http_exception_handler,
-    validation_exception_handler,
     generic_exception_handler,
+    lifespan,
+    log_error_responses,
+    log_slow_requests,
+    validation_exception_handler,
 )
-from app.routes import router
+from app.routes import routers
 
 # Setup environment-based log level
 env = os.getenv("ENV", "development")
@@ -63,5 +63,6 @@ app.exception_handler(Exception)(generic_exception_handler)
 app.exception_handler(RequestValidationError)(validation_exception_handler)
 app.exception_handler(HTTPException)(custom_http_exception_handler)
 
-# Include API routes
-app.include_router(router)
+# Include all API routers
+for router in routers:
+    app.include_router(router)
