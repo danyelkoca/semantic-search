@@ -5,7 +5,7 @@ from fastapi import APIRouter, Request
 from fastapi.responses import JSONResponse
 from weaviate.classes.query import Filter
 
-from backend.app.utils import get_product_collection, get_redis_client, rate_limit
+from app.utils import get_product_collection, get_redis_client, rate_limit
 
 router = APIRouter()
 logger = logging.getLogger("semantic-search")

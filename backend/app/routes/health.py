@@ -3,7 +3,7 @@ import logging
 from fastapi import APIRouter
 from fastapi.responses import JSONResponse
 
-from backend.app.utils import rate_limit
+from app.utils import rate_limit
 
 router = APIRouter()
 logger = logging.getLogger("semantic-search")

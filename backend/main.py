@@ -8,7 +8,7 @@ from slowapi import Limiter
 from slowapi.middleware import SlowAPIMiddleware
 from slowapi.util import get_remote_address
 
-from backend.app.middleware import (
+from app.middleware import (
     custom_http_exception_handler,
     generic_exception_handler,
     lifespan,
@@ -16,7 +16,7 @@ from backend.app.middleware import (
     log_slow_requests,
     validation_exception_handler,
 )
-from backend.app.routes import routers
+from app.routes import routers
 
 # Setup environment-based log level
 env = os.getenv("ENV", "development")

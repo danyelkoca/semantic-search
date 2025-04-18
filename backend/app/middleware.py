@@ -10,7 +10,7 @@ from fastapi.exceptions import RequestValidationError
 from starlette.responses import JSONResponse
 from starlette.status import HTTP_500_INTERNAL_SERVER_ERROR
 
-from backend.app.utils import get_redis_client, get_weaviate_client
+from app.utils import get_redis_client, get_weaviate_client
 
 logger = logging.getLogger("semantic-search")
 slow_logger = logging.getLogger("slow-requests")
