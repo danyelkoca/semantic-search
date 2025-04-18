@@ -28,6 +28,7 @@ def download_dataset(url: str, path: str) -> None:
         url (str): The URL to download the dataset from.
         path (str): The local file path to save the dataset.
     """
+
     logging.info(f"Checking for existing dataset at {path}")
     if not os.path.exists(path):  # Check if the file already exists
         os.makedirs(

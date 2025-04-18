@@ -31,3 +31,8 @@ __pycache__/
 # Download from below link
 # https://mcauleylab.ucsd.edu/public_datasets/data/amazon_2023/raw/meta_categories/meta_Amazon_Fashion.jsonl.gz
 etl/data
+
+
+# Frontend specific ignores
+frontend/node_modules/
+frontend/.svelte-kit/

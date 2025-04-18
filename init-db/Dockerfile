@@ -10,4 +10,4 @@ RUN pip install --upgrade pip
 COPY . .
 RUN pip install -r requirements.txt
 
-CMD ["sh", "-c", "python download_data.py && python init_weaviate.py"]
+CMD ["sh", "-c", "python download_data.py && python populate_db.py"]
