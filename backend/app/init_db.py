@@ -6,7 +6,7 @@ import os
 import dotenv
 import requests
 import weaviate
-from weaviate.classes.config import DataType, Property
+from weaviate.classes.config import Configure, DataType, Property
 
 from app.logger_setup import logger  # Import your logger cleanly
 
@@ -16,6 +16,22 @@ dotenv.load_dotenv()
 # Silence noisy libraries
 logging.getLogger("httpx").setLevel(logging.WARNING)
 logging.getLogger("weaviate").setLevel(logging.WARNING)
+
+ingestion_complete = False
+
+
+def set_ingestion_complete():
+    global ingestion_complete
+    ingestion_complete = True
+
+
+def reset_ingestion_status():
+    global ingestion_complete
+    ingestion_complete = False
+
+
+def get_ingestion_status():
+    return ingestion_complete
 
 
 def wait_for_schema_ready(client, retries=30, delay=2):
@@ -42,6 +58,8 @@ def initialize_database():
         grpc_secure=False,
     )
 
+    wait_for_schema_ready(client)
+
     force_initialize = os.getenv("FORCE_INITIALIZE_DB", "false").lower() == "true"
 
     if force_initialize and "Product" in client.collections.list_all():
@@ -50,23 +68,64 @@ def initialize_database():
             "✅ Deleted 'Product' collection as requested by FORCE_INITIALIZE_DB"
         )
 
-    wait_for_schema_ready(client)
-
     if "Product" not in client.collections.list_all():
         collection = client.collections.create(
             name="Product",
             properties=[
-                Property(name="product_id", data_type=DataType.INT),
-                Property(name="title", data_type=DataType.TEXT),
-                Property(name="average_rating", data_type=DataType.NUMBER),
-                Property(name="rating_number", data_type=DataType.INT),
-                Property(name="features", data_type=DataType.TEXT_ARRAY),
-                Property(name="description", data_type=DataType.TEXT),
-                Property(name="price", data_type=DataType.NUMBER),
-                Property(name="store", data_type=DataType.TEXT),
-                Property(name="details", data_type=DataType.TEXT),
-                Property(name="main_hi_res_image", data_type=DataType.TEXT),
+                Property(
+                    name="product_id",
+                    data_type=DataType.INT,
+                    module_config={"text2vec-openai": {"skip": True}},
+                ),
+                Property(
+                    name="title",
+                    data_type=DataType.TEXT,
+                    module_config={"text2vec-openai": {"vectorize": True}},
+                ),
+                Property(
+                    name="average_rating",
+                    data_type=DataType.NUMBER,
+                    module_config={"text2vec-openai": {"skip": True}},
+                ),
+                Property(
+                    name="rating_number",
+                    data_type=DataType.INT,
+                    module_config={"text2vec-openai": {"skip": True}},
+                ),
+                Property(
+                    name="features",
+                    data_type=DataType.TEXT_ARRAY,
+                    module_config={"text2vec-openai": {"skip": True}},
+                ),
+                Property(
+                    name="description",
+                    data_type=DataType.TEXT,
+                    module_config={"text2vec-openai": {"vectorize": True}},
+                ),
+                Property(
+                    name="price",
+                    data_type=DataType.NUMBER,
+                    module_config={"text2vec-openai": {"skip": True}},
+                ),
+                Property(
+                    name="store",
+                    data_type=DataType.TEXT,
+                    module_config={"text2vec-openai": {"skip": True}},
+                ),
+                Property(
+                    name="details",
+                    data_type=DataType.TEXT,
+                    module_config={"text2vec-openai": {"skip": True}},
+                ),
+                Property(
+                    name="main_hi_res_image",
+                    data_type=DataType.TEXT,
+                    module_config={"text2vec-openai": {"skip": True}},
+                ),
             ],
+            vectorizer_config=Configure.Vectorizer.text2vec_openai(
+                model="text-embedding-3-small"
+            ),
         )
         logger.info("✅ Created 'Product' schema.")
         populate_collection(collection)
@@ -79,6 +138,7 @@ def initialize_database():
             populate_collection(collection)
         else:
             logger.info("DB already initialized; skipping ingestion.")
+            set_ingestion_complete()
 
     client.close()
     logger.info("✅ Weaviate client closed.")
@@ -96,8 +156,16 @@ def populate_collection(collection):
 
     resp = requests.get(raw_url, stream=True)
     resp.raise_for_status()
+    logger.info("✅ Successfully downloaded and opened raw gzip file.")
 
+    if no_of_products:
+        logger.info(f"🔢 Will ingest up to {no_of_products} products as configured.")
+    else:
+        logger.info("🔢 Will ingest all available products.")
+
+    # Full download is necessary to read the lines, but ingestion is limited by no_of_products
     inserted_products = 0
+    batch = []
     with gzip.GzipFile(fileobj=resp.raw) as gz:
         for i, line in enumerate(gz, start=1):
             if no_of_products is not None and i > no_of_products:
@@ -143,9 +211,17 @@ def populate_collection(collection):
                     else ""
                 ),
             }
-            collection.data.insert(props)
-            inserted_products += 1
-            if inserted_products % 1000 == 0:
-                logger.info(f"Ingested {inserted_products} products")
+            batch.append(props)
+            if len(batch) == 50:
+                collection.data.insert_many(batch)
+                inserted_products += len(batch)
+                batch.clear()
+                if inserted_products % 1000 == 0:
+                    logger.info(f"Ingested {inserted_products} products")
+
+    if batch:
+        collection.data.insert_many(batch)
+        inserted_products += len(batch)
 
     logger.info(f"✅ Finished ingestion. Total products inserted: {inserted_products}")
+    set_ingestion_complete()

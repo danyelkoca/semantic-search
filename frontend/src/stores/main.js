@@ -5,3 +5,5 @@ export const bestSellers = writable([]);
 export const trending = writable([]);
 
 export const pastQueries = writable([]);
+
+export const backendReady = writable(false);

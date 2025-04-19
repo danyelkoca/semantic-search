@@ -50,7 +50,7 @@ async def get_products(request: Request, query: str = "", product_id: str = None
                 logger.info(f"Cache hit for query: {query}")
                 return {"ok": True, "products": json.loads(cached)}
 
-            result = product_collection.query.bm25(query=query, limit=20)
+            result = product_collection.query.near_text(query=query, limit=20)
             products = [obj.properties for obj in result.objects]
             await get_redis_client().setex(f"query:{query}", 3600, json.dumps(products))
             return {"ok": True, "products": products}
