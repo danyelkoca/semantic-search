@@ -3,7 +3,7 @@ import { backendReady } from "$stores/main";
 
 export async function fetchProducts(query = "") {
     const BACKEND_URL = import.meta.env.VITE_BACKEND_URL
-    const endpoint = query ? `${baseUrl}/products?query=${encodeURIComponent(query)}` : `${BACKEND_URL}/products`;
+    const endpoint = query ? `${BACKEND_URL}/products?query=${encodeURIComponent(query)}` : `${BACKEND_URL}/products`;
     try {
         const res = await fetch(endpoint);
         const data = await res.json();
