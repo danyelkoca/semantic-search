@@ -1,5 +1,6 @@
 import os
 
+from dotenv import load_dotenv
 from fastapi import FastAPI, HTTPException
 from fastapi.exceptions import RequestValidationError
 from fastapi.middleware.cors import CORSMiddleware
@@ -17,6 +18,8 @@ from app.middleware import (
 )
 from app.routes import routers
 
+load_dotenv()
+
 # Initialize FastAPI app
 app = FastAPI(
     title="Semantic Fashion Recommendation System",
@@ -33,6 +36,7 @@ app.middleware("http")(log_error_responses)
 limiter = Limiter(key_func=get_remote_address)
 app.state.limiter = limiter
 app.add_middleware(SlowAPIMiddleware)
+
 # Read environment
 env = os.getenv("ENV", "development").lower()
 
