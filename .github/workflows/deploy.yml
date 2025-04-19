@@ -2,7 +2,7 @@ name: Deploy to EC2
 
 on:
   push:
-    branches:
+    branches: #push test
       - main  # or your production branch
 
 jobs:
