@@ -34,12 +34,16 @@ limiter = Limiter(key_func=get_remote_address)
 app.state.limiter = limiter
 app.add_middleware(SlowAPIMiddleware)
 
-# Set allowed origins based on the FRONT_END_URL environment variable
-origins = [os.getenv("FRONT_END_URL")]
+# Read FRONT_END_URL env var and split by commas into a list
+allowed_origins = os.getenv("FRONT_END_URL", "").split(",")
+
+# Trim any extra spaces
+allowed_origins = [origin.strip() for origin in allowed_origins]
+
 
 app.add_middleware(
     CORSMiddleware,
-    allow_origins=origins,
+    allow_origins=allowed_origins,
     allow_credentials=True,
     allow_methods=["GET"],
     allow_headers=["Authorization", "Content-Type"],
