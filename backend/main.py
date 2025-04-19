@@ -34,15 +34,8 @@ limiter = Limiter(key_func=get_remote_address)
 app.state.limiter = limiter
 app.add_middleware(SlowAPIMiddleware)
 
-# Determine the environment
-env = os.getenv("ENV", "development")
-
-# Set allowed origins based on the environment
-if env == "production":
-    origins = ["http://54.253.184.54:4173"]
-else:
-    origins = ["http://localhost:4173"]
-
+# Set allowed origins based on the FRONT_END_URL environment variable
+origins = [os.getenv("FRONT_END_URL")]
 
 app.add_middleware(
     CORSMiddleware,
