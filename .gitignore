@@ -36,3 +36,5 @@ etl/data
 # Frontend specific ignores
 frontend/node_modules/
 frontend/.svelte-kit/
+
+*.pem

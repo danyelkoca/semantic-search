@@ -5,8 +5,8 @@ const config = {
 	kit: {
 		adapter: adapter({
 			fallback: '200.html',
-			pages: 'build',     // 🔥 ensure output to build/
-			assets: 'build'     // 🔥 ensure output to build/
+			pages: 'build',
+			assets: 'build'
 		}),
 		paths: {
 			base: '',
