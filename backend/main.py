@@ -26,7 +26,7 @@ env = os.getenv("ENV", "development").lower()
 # Load frontend URLs from environment or set default fallbacks
 default_dev_frontend_url = "http://localhost"
 default_prod_frontend_url = (
-    "http://54.253.184.54,http://ec2-54-253-184-54.ap-southeast-2.compute.amazonaws.com"
+    "http://3.25.72.5,http://ec2-54-253-184-54.ap-southeast-2.compute.amazonaws.com"
 )
 
 if env == "production":
