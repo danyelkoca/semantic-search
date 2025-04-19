@@ -25,19 +25,12 @@ jobs:
         run: |
           python -m pip install --upgrade pip
           pip install -r requirements-dev.txt
+          pip install pre-commit
 
-      - name: Run Black (code formatter check)
+      - name: Run Pre-Commit hooks on all files
         run: |
-          black --check backend/
-
-      - name: Run Flake8 (code quality check)
-        run: |
-          flake8 backend/ --max-line-length=100
-
-      - name: Run Isort (import sorting check)
-        run: |
-          isort --check-only backend/
+          pre-commit run --all-files
 
       - name: Run Tests
         run: |
-          pytest backend/tests/
+          PYTHONPATH=backend pytest backend/tests/
