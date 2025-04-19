@@ -20,6 +20,29 @@ from app.routes import routers
 
 load_dotenv()
 
+# Read environment
+env = os.getenv("ENV", "development").lower()
+
+# Load frontend URLs from environment or set default fallbacks
+default_dev_frontend_url = "http://localhost"
+default_prod_frontend_url = (
+    "http://54.253.184.54,http://ec2-54-253-184-54.ap-southeast-2.compute.amazonaws.com"
+)
+
+if env == "production":
+    raw_origins = os.getenv("PROD_FRONTEND_URL", default_prod_frontend_url)
+else:
+    raw_origins = os.getenv("DEV_FRONTEND_URL", default_dev_frontend_url)
+
+# Parse and clean allowed origins
+allowed_origins = [
+    origin.strip() for origin in raw_origins.split(",") if origin.strip()
+]
+
+# Fail early if no allowed origins
+if not allowed_origins:
+    raise ValueError("No allowed origins specified for environment: " + env)
+
 # Initialize FastAPI app
 app = FastAPI(
     title="Semantic Fashion Recommendation System",
@@ -36,24 +59,6 @@ app.middleware("http")(log_error_responses)
 limiter = Limiter(key_func=get_remote_address)
 app.state.limiter = limiter
 app.add_middleware(SlowAPIMiddleware)
-
-# Read environment
-env = os.getenv("ENV", "development").lower()
-
-# Choose correct frontend URL based on environment
-if env == "production":
-    raw_origins = os.getenv("PROD_FRONTEND_URL", "")
-else:
-    raw_origins = os.getenv("DEV_FRONTEND_URL", "")
-
-# Parse and clean allowed origins
-allowed_origins = [
-    origin.strip() for origin in raw_origins.split(",") if origin.strip()
-]
-
-# Fail early if no allowed origins
-if not allowed_origins:
-    raise ValueError("No allowed origins specified for environment: " + env)
 
 # Apply CORS middleware
 app.add_middleware(

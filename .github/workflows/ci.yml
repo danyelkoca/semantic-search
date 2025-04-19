@@ -11,7 +11,10 @@ on:
 jobs:
   build-test-lint:
     runs-on: ubuntu-latest
-
+    env:
+      ENV: ${{ vars.ENV }}
+      DEV_FRONTEND_URL: ${{ vars.DEV_FRONTEND_URL }}
+      PROD_FRONTEND_URL: ${{ vars.PROD_FRONTEND_URL }}
     steps:
       - name: Checkout code
         uses: actions/checkout@v4
@@ -32,9 +35,5 @@ jobs:
           pre-commit run --all-files
 
       - name: Run Tests
-        env:
-          ENV: ${{ secrets.ENV }}
-          DEV_FRONTEND_URL: ${{ secrets.DEV_FRONTEND_URL }}
-          PROD_FRONTEND_URL: ${{ secrets.PROD_FRONTEND_URL }}
         run: |
           PYTHONPATH=backend pytest backend/tests/
