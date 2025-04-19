@@ -6,5 +6,4 @@ weaviate-client
 python-dotenv
 redis
 starlette
-json_log_formatter
 requests
