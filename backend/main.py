@@ -33,14 +33,25 @@ app.middleware("http")(log_error_responses)
 limiter = Limiter(key_func=get_remote_address)
 app.state.limiter = limiter
 app.add_middleware(SlowAPIMiddleware)
+# Read environment
+env = os.getenv("ENV", "development").lower()
 
-# Read FRONT_END_URL env var and split by commas into a list
-allowed_origins = os.getenv("FRONT_END_URL", "").split(",")
+# Choose correct frontend URL based on environment
+if env == "production":
+    raw_origins = os.getenv("PROD_FRONTEND_URL", "")
+else:
+    raw_origins = os.getenv("DEV_FRONTEND_URL", "")
 
-# Trim any extra spaces
-allowed_origins = [origin.strip() for origin in allowed_origins]
+# Parse and clean allowed origins
+allowed_origins = [
+    origin.strip() for origin in raw_origins.split(",") if origin.strip()
+]
 
+# Fail early if no allowed origins
+if not allowed_origins:
+    raise ValueError("No allowed origins specified for environment: " + env)
 
+# Apply CORS middleware
 app.add_middleware(
     CORSMiddleware,
     allow_origins=allowed_origins,

@@ -3,7 +3,7 @@ services:
     build: ./frontend
     restart: unless-stopped
     ports:
-      - "4173:80"
+      - "80:80"
     depends_on:
       - backend
     container_name: frontend
@@ -22,7 +22,6 @@ services:
         weaviate:
           condition: service_healthy
     container_name: backend
-
 
   redis:
     image: redis:7

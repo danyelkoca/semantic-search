@@ -2,8 +2,7 @@
 import { backendReady } from "$stores/main";
 
 export async function fetchProducts(query = "") {
-    const BACKEND_URL = import.meta.env.VITE_BACKEND_URL
-    const endpoint = query ? `${BACKEND_URL}/products?query=${encodeURIComponent(query)}` : `${BACKEND_URL}/products`;
+    const endpoint = query ? `api/products?query=${encodeURIComponent(query)}` : `api/products`;
     try {
         const res = await fetch(endpoint);
         const data = await res.json();
@@ -21,12 +20,10 @@ export async function fetchProducts(query = "") {
 
 
 export async function waitForBackendReady() {
-    const BACKEND_URL = import.meta.env.VITE_BACKEND_URL
-    const healthUrl = `${BACKEND_URL}/health`;
 
     while (true) {
         try {
-            const res = await fetch(healthUrl);
+            const res = await fetch(`api/health`);
             const data = await res.json();
             if (data.ok && data.ingestion_complete) {
                 console.log("✅ Backend ready!");

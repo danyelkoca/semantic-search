@@ -7,9 +7,7 @@
       return;
     }
 
-    const BACKEND_URL = import.meta.env.VITE_BACKEND_URL;
-    const endpoint = `${BACKEND_URL}/trending`;
-    const res = await fetch(endpoint);
+    const res = await fetch("api/trending");
     const data = await res.json();
 
     if (data.ok) {
