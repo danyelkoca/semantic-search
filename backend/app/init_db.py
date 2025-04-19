@@ -42,6 +42,14 @@ def initialize_database():
         grpc_secure=False,
     )
 
+    force_initialize = os.getenv("FORCE_INITIALIZE_DB", "false").lower() == "true"
+
+    if force_initialize and "Product" in client.collections.list_all():
+        client.collections.delete("Product")
+        logger.info(
+            "✅ Deleted 'Product' collection as requested by FORCE_INITIALIZE_DB"
+        )
+
     wait_for_schema_ready(client)
 
     if "Product" not in client.collections.list_all():
@@ -81,13 +89,19 @@ def populate_collection(collection):
     if not raw_url:
         raise ValueError("RAW_URL is not set in environment variables.")
 
+    no_of_products = os.getenv("NO_OF_PRODUCTS")
+    no_of_products = int(no_of_products) if no_of_products else None
+
     logger.info(f"🔗 Starting download and ingestion from {raw_url}")
 
     resp = requests.get(raw_url, stream=True)
     resp.raise_for_status()
 
+    inserted_products = 0
     with gzip.GzipFile(fileobj=resp.raw) as gz:
         for i, line in enumerate(gz, start=1):
+            if no_of_products is not None and i > no_of_products:
+                break
             rec = json.loads(line.decode("utf-8"))
 
             props = {
@@ -130,7 +144,8 @@ def populate_collection(collection):
                 ),
             }
             collection.data.insert(props)
-            if i % 1000 == 0:
-                logger.info(f"Ingested {i} products")
+            inserted_products += 1
+            if inserted_products % 1000 == 0:
+                logger.info(f"Ingested {inserted_products} products")
 
-    logger.info("✅ Finished ingestion.")
+    logger.info(f"✅ Finished ingestion. Total products inserted: {inserted_products}")
