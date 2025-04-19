@@ -1,4 +1,3 @@
-import logging
 import os
 
 from fastapi import FastAPI, HTTPException
@@ -18,19 +17,6 @@ from app.middleware import (
 )
 from app.routes import routers
 
-# Setup environment-based log level
-env = os.getenv("ENV", "development")
-log_level = logging.INFO if env == "production" else logging.DEBUG
-
-logger = logging.getLogger("semantic-search")
-logger.setLevel(log_level)
-
-console_handler = logging.StreamHandler()
-console_handler.setFormatter(
-    logging.Formatter("[%(asctime)s] [%(levelname)s] %(message)s")
-)
-logger.addHandler(console_handler)
-
 # Initialize FastAPI app
 app = FastAPI(
     title="Semantic Fashion Recommendation System",
@@ -49,13 +35,15 @@ app.state.limiter = limiter
 app.add_middleware(SlowAPIMiddleware)
 
 # CORS Middleware
+env = os.getenv("ENV", "development")
+
 origins = (
     [
         "http://localhost:4173",
         "http://localhost:5173",
     ]
     if env != "production"
-    else [os.getenv("FRONTEND_URL")]
+    else [os.getenv("FRONTEND_URL", "https://default-frontend-url.com")]
 )
 
 app.add_middleware(

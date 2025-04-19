@@ -7,7 +7,8 @@ services:
       - "4173:4173"
     depends_on:
       - backend
-      
+    container_name: frontend
+
   backend:
     build: ./backend
     ports:
@@ -19,11 +20,12 @@ services:
     depends_on:
         weaviate:
           condition: service_healthy
+    container_name: backend
 
 
   redis:
     image: redis:7
-    container_name: semantic-search-redis
+    container_name: redis
     ports:
       - "6379:6379"
     restart: unless-stopped
@@ -51,6 +53,7 @@ services:
       interval: 5s
       timeout: 3s
       retries: 20
+    container_name: weaviate
 
 volumes:
   weaviate_data:

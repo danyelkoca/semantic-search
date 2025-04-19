@@ -1,5 +1,4 @@
 import asyncio
-import logging
 from contextlib import asynccontextmanager
 
 from fastapi import FastAPI, HTTPException, Request
@@ -12,11 +11,8 @@ from starlette.responses import JSONResponse
 from starlette.status import HTTP_500_INTERNAL_SERVER_ERROR
 
 from app.init_db import initialize_database
+from app.logger_setup import logger
 from app.utils import get_redis_client, get_weaviate_client
-
-logger = logging.getLogger("semantic-search")
-slow_logger = logging.getLogger("slow-requests")
-error_logger = logging.getLogger("errors")
 
 
 @asynccontextmanager
@@ -34,10 +30,10 @@ async def lifespan(app: FastAPI):
     yield
     try:
         client = get_weaviate_client()
+        yield client
+    finally:
         client.close()
         logger.info("Weaviate client closed successfully")
-    except Exception as e:
-        logger.error(f"Error during shutdown: {e}")
 
 
 async def log_slow_requests(request: Request, call_next):
@@ -47,7 +43,7 @@ async def log_slow_requests(request: Request, call_next):
     response = await call_next(request)
     duration = time() - start_time
     if duration > 1.0:
-        slow_logger.warning(
+        logger.warning(
             f"Slow request: {request.method} {request.url} took {duration:.2f}s"
         )
     return response
@@ -56,11 +52,11 @@ async def log_slow_requests(request: Request, call_next):
 async def log_error_responses(request: Request, call_next):
     response = await call_next(request)
     if response.status_code >= 500:
-        error_logger.error(
+        logger.error(
             f"Server error {response.status_code} on {request.method} {request.url}"
         )
     elif response.status_code >= 400:
-        error_logger.warning(
+        logger.warning(
             f"Client error {response.status_code} on {request.method} {request.url}"
         )
     return response

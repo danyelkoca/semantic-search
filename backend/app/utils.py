@@ -1,3 +1,4 @@
+from contextlib import asynccontextmanager
 from typing import Callable
 
 import dotenv
@@ -32,10 +33,16 @@ def get_weaviate_client():
     )
 
 
-def get_product_collection():
-    client = get_weaviate_client()
-    collection = client.collections.get("Product")
-    return client, collection
+@asynccontextmanager
+async def get_product_collection():
+    client = None
+    try:
+        client = get_weaviate_client()
+        collection = client.collections.get("Product")
+        yield client, collection
+    finally:
+        if client:
+            client.close()
 
 
 def rate_limit(limit_string: str):

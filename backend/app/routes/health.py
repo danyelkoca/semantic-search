@@ -1,12 +1,10 @@
-import logging
-
 from fastapi import APIRouter
 from fastapi.responses import JSONResponse
 
+from app.logger_setup import logger
 from app.utils import rate_limit
 
 router = APIRouter()
-logger = logging.getLogger("semantic-search")
 
 
 @rate_limit("60/minute")

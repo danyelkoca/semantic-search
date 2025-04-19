@@ -1,13 +1,12 @@
 import json
-import logging
 
 from fastapi import APIRouter, Request
 from weaviate.classes.query import Sort
 
+from app.logger_setup import logger
 from app.utils import get_product_collection, get_redis_client, rate_limit
 
 router = APIRouter()
-logger = logging.getLogger("semantic-search")
 
 
 @router.get("/trending")
@@ -28,7 +27,7 @@ async def get_trending(request: Request):
             return {"ok": False, "error": "No products found"}
 
         top_20 = sorted(
-            [obj.properties for obj in result.objects],
+            (obj.properties for obj in result.objects),
             key=lambda x: x.get("average_rating", 0),
             reverse=True,
         )[:20]
