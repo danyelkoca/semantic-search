@@ -11,7 +11,10 @@ on:
 jobs:
   build-test-lint:
     runs-on: ubuntu-latest
-
+    env:
+      ENV: ${{ secrets.ENV }}
+      DEV_FRONTEND_URL: ${{ secrets.DEV_FRONTEND_URL }}
+      PROD_FRONTEND_URL: ${{ secrets.PROD_FRONTEND_URL }}
     steps:
       - name: Checkout code
         uses: actions/checkout@v4
