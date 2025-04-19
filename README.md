@@ -1,4 +1,4 @@
-# Semantic Search Microservice
+# Semantic Search
 
 This microservice enables natural language product search for an e-commerce fashion catalog using semantic search.
 
@@ -34,10 +34,10 @@ curl "http://localhost:8000/health"
 
 ## Design Choices
 
-| Component | Decision |
-|:---|:---|
+| Component     | Decision                           |
+| :------------ | :--------------------------------- |
 | Search Engine | Weaviate for fast vector retrieval |
-| Framework | FastAPI for lightweight API |
-| Cache | Redis for performance boost |
+| Framework     | FastAPI for lightweight API        |
+| Cache         | Redis for performance boost        |
 
 ---
