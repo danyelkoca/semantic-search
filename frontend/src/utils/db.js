@@ -2,7 +2,7 @@
 import { backendReady } from "$stores/main";
 
 export async function fetchProducts(query = "") {
-    const endpoint = query ? `api/products?query=${encodeURIComponent(query)}` : `api/products`;
+    const endpoint = query ? `/api/products?query=${encodeURIComponent(query)}` : `api/products`;
     try {
         const res = await fetch(endpoint);
         const data = await res.json();
@@ -23,7 +23,7 @@ export async function waitForBackendReady() {
 
     while (true) {
         try {
-            const res = await fetch(`api/health`);
+            const res = await fetch(`/api/health`);
             const data = await res.json();
             if (data.ok && data.ingestion_complete) {
                 console.log("✅ Backend ready!");

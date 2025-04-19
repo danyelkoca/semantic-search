@@ -7,7 +7,7 @@
       return;
     }
 
-    const res = await fetch("api/best-sellers");
+    const res = await fetch("/api/best-sellers");
     const data = await res.json();
 
     if (data.ok) {

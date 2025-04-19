@@ -7,7 +7,7 @@
       return;
     }
 
-    const res = await fetch("api/trending");
+    const res = await fetch("/api/trending");
     const data = await res.json();
 
     if (data.ok) {
