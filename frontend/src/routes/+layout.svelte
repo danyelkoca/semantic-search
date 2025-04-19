@@ -7,7 +7,7 @@
 <!-- NAVBAR -->
 <div class="min-h-screen flex flex-col bg-slate-50">
   <Navbar />
-  <div class="p-4 grow">
+  <div class="p-4 grow flex flex-col">
     {@render children()}
   </div>
   <footer class="bg-slate-100 text-center p-4 flex items-center justify-around">

@@ -2,39 +2,37 @@
 
 # Dependencies
 node_modules/
-*.log*
+frontend/node_modules/
+
+# Build artifacts
+dist/
+build/
+out/
+frontend/.svelte-kit/
 
 # Environment variables
 .env*
 
-# Build output
-dist/
-build/
-out/
+# Logs
+*.log*
 
-# IDE/editor settings
+# Editor and system files
 .vscode/
 .idea/
 *.sw*
-
-# OS and Git
 .DS_Store
 Thumbs.db
+
+# Git
 .git/
 
 # Python artifacts
-*.py[cod]
 __pycache__/
+*.py[cod]
 *.so
 
-# Not tracked because of large file size
-# Download from below link
-# https://mcauleylab.ucsd.edu/public_datasets/data/amazon_2023/raw/meta_categories/meta_Amazon_Fashion.jsonl.gz
-etl/data
+# Data
+eda/data
 
-
-# Frontend specific ignores
-frontend/node_modules/
-frontend/.svelte-kit/
-
+# Keys
 *.pem

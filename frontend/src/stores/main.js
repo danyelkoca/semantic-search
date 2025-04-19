@@ -7,3 +7,5 @@ export const trending = writable([]);
 export const pastQueries = writable([]);
 
 export const backendReady = writable(false);
+
+export const loading = writable(true);

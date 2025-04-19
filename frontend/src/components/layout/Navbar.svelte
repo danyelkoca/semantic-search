@@ -1,6 +1,7 @@
 <script>
   import { products } from "$stores/main";
   import { fetchProducts } from "$utils/db";
+  import { goto } from "$app/navigation";
 
   let debounceTimeout;
   let isMenuOpen = false;
@@ -11,6 +12,7 @@
     debounceTimeout = setTimeout(async () => {
       let fetchedProducts = await fetchProducts(query);
       products.set(fetchedProducts);
+      goto("/");
     }, 500); // Adjust the debounce time as needed
   }
 
@@ -43,18 +45,21 @@
 </script>
 
 <header class="bg-white border-b border-[1px] border-slate-200 top-0 z-10">
-  <div class="px-4 py-2 mx-auto flex justify-between items-center gap-4">
-    <a href="/" style="font-family: 'Do Hyeon', Inter;" class="text-4xl text-sky-900 text-center">metro</a>
+  <div class="p-4 mx-auto flex justify-between items-center gap-4">
+    <a href="/" style="font-family: 'Do Hyeon', Inter;" class="text-4xl text-sky-900 text-center">
+      <span class="hidden sm:inline">metro</span>
+      <span class="sm:hidden">m</span>
+    </a>
     <div class="relative">
       <input
         type="text"
-        placeholder="Search for outfits..."
-        class="px-4 py-2 grow rounded-full max-w-[300px] border-slate-200 border"
+        placeholder="Search..."
+        class="px-4 py-2 grow rounded-full w-full mx-auto max-w-[500px] sm:min-w-[300px] md:min-w-[400px] lg:min-w-[500px] border-slate-200 shadow-lg border"
         on:input={(event) => handleInput(event.currentTarget.value)}
         on:focus={() => (showSuggestions = true)}
         on:blur={(event) => {
-          setTimeout(() => (showSuggestions = false), 200);
           handleBlur(event.currentTarget.value);
+          setTimeout(() => (showSuggestions = false), 200);
         }}
       />
       {#if showSuggestions && $pastQueries.length > 0}
