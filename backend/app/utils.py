@@ -34,7 +34,8 @@ def get_weaviate_client():
 
 def get_product_collection():
     client = get_weaviate_client()
-    return client.collections.get("Product")
+    collection = client.collections.get("Product")
+    return client, collection
 
 
 def rate_limit(limit_string: str):

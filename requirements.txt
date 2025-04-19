@@ -1,10 +1,19 @@
-## needed for testing etc.
-## When running on docker, we have separate requirements for backend so this is not used.
-## This is mostly o for dev purposes
+# requirements.txt
 
+# FastAPI framework for building APIs
 fastapi
+
+# Redis client for caching and message brokering
 redis
+
+# Weaviate client for interacting with Weaviate vector search engine
 weaviate-client
+
+# SlowAPI for rate-limiting in FastAPI
 slowapi
+
+# Uvicorn ASGI server for running FastAPI applications
 uvicorn
+
+# Python-dotenv for loading environment variables from a .env file
 python-dotenv

@@ -3,8 +3,8 @@ slowapi
 uvicorn[standard]
 openai
 weaviate-client
-# python-multipart
 python-dotenv
 redis
 starlette
 json_log_formatter
+requests

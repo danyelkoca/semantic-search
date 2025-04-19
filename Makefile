@@ -1,4 +1,4 @@
-# Makefile for semantic-search project
+# Makefile
 
 .PHONY: install lint format sort test
 

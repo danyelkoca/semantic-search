@@ -1,3 +1,4 @@
+import asyncio
 import logging
 from contextlib import asynccontextmanager
 
@@ -10,6 +11,7 @@ from fastapi.exceptions import RequestValidationError
 from starlette.responses import JSONResponse
 from starlette.status import HTTP_500_INTERNAL_SERVER_ERROR
 
+from app.init_db import initialize_database
 from app.utils import get_redis_client, get_weaviate_client
 
 logger = logging.getLogger("semantic-search")
@@ -23,6 +25,10 @@ async def lifespan(app: FastAPI):
     try:
         await client.flushdb()
         logger.info("Cache cleared successfully at startup")
+
+        await asyncio.gather(
+            asyncio.to_thread(initialize_database),
+        )
     except Exception as e:
         logger.error(f"Error clearing Redis cache on startup: {e}")
     yield

@@ -2,7 +2,6 @@ import json
 import logging
 
 from fastapi import APIRouter, Request
-from fastapi.responses import JSONResponse
 from weaviate.classes.query import Sort
 
 from app.utils import get_product_collection, get_redis_client, rate_limit
@@ -20,8 +19,7 @@ async def get_trending(request: Request):
         logger.info("Cache hit for trending")
         return {"ok": True, "products": json.loads(cached)}
 
-    try:
-        product_collection = get_product_collection()
+    async with get_product_collection() as (client, product_collection):
         result = product_collection.query.fetch_objects(
             limit=200,
             sort=Sort.by_property(name="rating_number", ascending=False),
@@ -36,6 +34,3 @@ async def get_trending(request: Request):
         )[:20]
         await get_redis_client().setex("trending_products", 3600, json.dumps(top_20))
         return {"ok": True, "products": top_20}
-    except Exception as e:
-        logger.error(f"Error fetching trending: {e}")
-        return JSONResponse(status_code=500, content={"ok": False, "error": str(e)})

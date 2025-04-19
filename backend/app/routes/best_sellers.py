@@ -20,22 +20,22 @@ async def get_best_sellers(request: Request):
         logger.info("Cache hit for best-sellers")
         return {"ok": True, "products": json.loads(cached)}
 
-    try:
-        product_collection = get_product_collection()
-        result = product_collection.query.fetch_objects(
-            limit=200,
-            sort=Sort.by_property(name="rating_number", ascending=False),
-        )
-        if not result.objects:
-            return {"ok": False, "error": "No products found"}
+    async with get_product_collection() as (client, product_collection):
+        try:
+            result = product_collection.query.fetch_objects(
+                limit=200,
+                sort=Sort.by_property(name="rating_number", ascending=False),
+            )
+            if not result.objects:
+                return {"ok": False, "error": "No products found"}
 
-        top_20 = sorted(
-            [obj.properties for obj in result.objects],
-            key=lambda x: x.get("average_rating", 0),
-            reverse=True,
-        )[:20]
-        await get_redis_client().setex("best_sellers", 3600, json.dumps(top_20))
-        return {"ok": True, "products": top_20}
-    except Exception as e:
-        logger.error(f"Error fetching best-sellers: {e}")
-        return JSONResponse(status_code=500, content={"ok": False, "error": str(e)})
+            top_20 = sorted(
+                [obj.properties for obj in result.objects],
+                key=lambda x: x.get("average_rating", 0),
+                reverse=True,
+            )[:20]
+            await get_redis_client().setex("best_sellers", 3600, json.dumps(top_20))
+            return {"ok": True, "products": top_20}
+        except Exception as e:
+            logger.error(f"Error fetching best-sellers: {e}")
+            return JSONResponse(status_code=500, content={"ok": False, "error": str(e)})
