@@ -7,7 +7,8 @@
       return;
     }
 
-    const endpoint = "http://localhost:8000/trending";
+    const BACKEND_URL = import.meta.env.VITE_BACKEND_URL;
+    const endpoint = `${BACKEND_URL}/trending`;
     const res = await fetch(endpoint);
     const data = await res.json();
 

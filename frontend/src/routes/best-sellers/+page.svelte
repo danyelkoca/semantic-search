@@ -2,12 +2,14 @@
   import { onMount } from "svelte";
   import { bestSellers } from "$stores/main";
 
+  const BACKEND_URL = import.meta.env.VITE_BACKEND_URL;
+
   onMount(async () => {
     if ($bestSellers.length > 0) {
       return;
     }
 
-    const endpoint = "http://localhost:8000/best-sellers";
+    const endpoint = `${BACKEND_URL}/best-sellers`;
     const res = await fetch(endpoint);
     const data = await res.json();
 

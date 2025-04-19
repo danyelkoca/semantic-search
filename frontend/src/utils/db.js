@@ -2,7 +2,8 @@
 import { backendReady } from "$stores/main";
 
 export async function fetchProducts(query = "") {
-    const endpoint = query ? `http://localhost:8000/products?query=${encodeURIComponent(query)}` : "http://localhost:8000/products";
+    const BACKEND_URL = import.meta.env.VITE_BACKEND_URL
+    const endpoint = query ? `${baseUrl}/products?query=${encodeURIComponent(query)}` : `${BACKEND_URL}/products`;
     try {
         const res = await fetch(endpoint);
         const data = await res.json();
@@ -20,7 +21,8 @@ export async function fetchProducts(query = "") {
 
 
 export async function waitForBackendReady() {
-    const healthUrl = "http://localhost:8000/health";
+    const BACKEND_URL = import.meta.env.VITE_BACKEND_URL
+    const healthUrl = `${BACKEND_URL}/health`;
 
     while (true) {
         try {

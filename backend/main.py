@@ -40,7 +40,6 @@ env = os.getenv("ENV", "development")
 origins = (
     [
         "http://localhost:4173",
-        "http://localhost:5173",
     ]
     if env != "production"
     else [os.getenv("FRONTEND_URL", "https://default-frontend-url.com")]
