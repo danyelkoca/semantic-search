@@ -9,7 +9,7 @@ This repository implements a scalable and modular semantic search microservice f
 - **Frontend**: [Live UI](http://ec2-3-25-72-5.ap-southeast-2.compute.amazonaws.com/)
   - Use the Search button to search by "vector", "keyword", or "hybrid" methods.
 - **Backend**: [Swagger UI](http://ec2-3-25-72-5.ap-southeast-2.compute.amazonaws.com:8000/docs)
-  - Main functionality is at the `/search` endpoint supporting all search modes.
+  - Explore the `/search` endpoint for all search modes.
 
 > **Note:** Backend APIs are temporarily public for evaluation purposes.
 
@@ -99,28 +99,38 @@ The search type is configurable via query parameters.
 
 ## User Access
 
-- **UI**: Search products visually through SvelteKit frontend
-- **Backend API**: Swagger UI available at `/docs` for manual API exploration
-- Both are accessible via the public AWS EC2 instance.
+Access the frontend UI or explore APIs via Swagger at `/docs`, both available through the public AWS EC2 instance.
 
 ---
 
 ## Setup (Local)
 
 **Requirements:**
+
 - [Docker Desktop](https://www.docker.com/products/docker-desktop/) (includes Docker and Docker Compose)
 - [Git](https://git-scm.com/) (to clone the repository)
 - Internet connection (to pull Docker images)
 
 **Steps:**
+
 ```bash
 git clone https://github.com/danyelkoca/semantic-search.git
 cd semantic-search
 cp .env.example .env  # Create your local environment file
+```
+
+- Open `.env` and **replace** `YOUR_OPENAI_API_KEY` with your actual OpenAI API Key.
+- Then start the application:
+
+```bash
 docker-compose up --build
 ```
 
----
+Then open [http://localhost](http://localhost) in your browser.
+
+Example test query:
+- Query: `outfit for beach vacation`
+- Mode: `hybrid`
 
 ## Key Design Decisions
 
@@ -134,9 +144,22 @@ docker-compose up --build
 
 ---
 
+## Exploratory Data Analysis (EDA)
+
+[View Full EDA Notebook](http://ec2-3-25-72-5.ap-southeast-2.compute.amazonaws.com/explore)
+
+- Dataset: ~826K fashion products with 14 fields.
+- Dropped: `bought_together`, `videos`, `main_category`, `categories`, `parent_asin` (mostly null).
+- Images: Retained only MAIN image; stripped URL prefixes.
+- Text: Flattened `description`, `features`, and `details` into a single searchable field.
+- Price: Available for ~6% of products.
+- Ratings: Included; distribution highly skewed.
+- Token count: ~83M tokens; embedding estimated cost ~$1.68.
+- Final selection: Top 1,000 products with price and ratings populated.
+
 ## Additional Notes
 
-- Database automatically initializes with top-rated products if needed.
-- Robust caching based on query and query type.
-- Strict validation and input sanitation.
-- Optimized product ingestion with fallback handling.
+- Automatic database initialization (`init_db.py`).
+- Embeddings: OpenAI `text-embedding-3-small`.
+- Redis caching for faster search results.
+- Strict input validation and optimized API response formats.
