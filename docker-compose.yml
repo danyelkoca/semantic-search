@@ -70,4 +70,3 @@ services:
  
 volumes:
   weaviate_data:
-  product_data:
