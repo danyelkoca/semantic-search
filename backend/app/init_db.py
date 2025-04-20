@@ -4,7 +4,6 @@ import logging
 import os
 
 import dotenv
-import requests
 import weaviate
 from weaviate.classes.config import Configure, DataType, Property
 
@@ -144,44 +143,16 @@ def initialize_database():
 
 
 def populate_collection(collection):
-    raw_url = os.getenv("RAW_URL")
-    if not raw_url:
-        raise ValueError("RAW_URL is not set in environment variables.")
+    local_path = "./data/products.jsonl.gz"
+    if not os.path.exists(local_path):
+        raise FileNotFoundError(f"Dataset file not found at {local_path}")
 
-    no_of_products = os.getenv("NO_OF_PRODUCTS")
-    no_of_products = int(no_of_products) if no_of_products else None
+    logger.info(f"🔍 Reading data from local {local_path}")
 
-    logger.info(f"🔗 Starting download and ingestion from {raw_url}")
+    with gzip.open(local_path, "rt", encoding="utf-8") as gz:
+        records = [json.loads(line) for line in gz]
 
-    resp = requests.get(raw_url, stream=True)
-    resp.raise_for_status()
-    logger.info("✅ Successfully downloaded and opened raw gzip file.")
-
-    if no_of_products:
-        logger.info(f"🔢 Will ingest {no_of_products} products as configured.")
-    else:
-        logger.info("🔢 Will ingest all available products.")
-
-    with gzip.GzipFile(fileobj=resp.raw) as gz:
-        records = [json.loads(line.decode("utf-8")) for line in gz]
-        records = [r for r in records if r.get("price") is not None]
-        logger.info(
-            f"📦 Found {len(records)} products with price available for ingestion."
-        )
-
-    if no_of_products and no_of_products > len(records):
-        logger.warning(
-            f"⚠️ NO_OF_PRODUCTS ({no_of_products}) exceeds available ({len(records)})."
-        )
-        logger.warning(f"⚠️ Adjusting NO_OF_PRODUCTS to {len(records)}.")
-        no_of_products = len(records)
-
-    # Sort records by rating_number descending
-    records.sort(key=lambda x: x.get("rating_number", 0), reverse=True)
-
-    # Limit if no_of_products specified
-    if no_of_products:
-        records = records[:no_of_products]
+    logger.info(f"📦 Found {len(records)} products available for ingestion.")
 
     inserted_products = 0
     batch = []
@@ -190,43 +161,16 @@ def populate_collection(collection):
             "product_id": i,
             "title": rec.get("title", ""),
             "store": rec.get("store", ""),
-            "description": (
-                " ".join(rec["description"])
-                if isinstance(rec.get("description", []), list)
-                else rec.get("description", "")
-            ),
+            "description": rec.get("description", ""),
             "features": rec.get("features", []),
-            "average_rating": (
-                float(rec.get("average_rating"))
-                if rec.get("average_rating") is not None
-                else -1.0
-            ),
-            "rating_number": (
-                int(rec.get("rating_number"))
-                if rec.get("rating_number") is not None
-                else -1
-            ),
-            "price": (
-                float(rec.get("price")) if rec.get("price") is not None else -1.0
-            ),
-            "details": json.dumps(rec.get("details", {})),
-            "main_hi_res_image": (
-                next(
-                    (
-                        (img.get("hi_res") or "").replace(
-                            "https://m.media-amazon.com/images/I/", ""
-                        )
-                        for img in rec.get("images", [])
-                        if img.get("variant", "").lower() == "main"
-                    ),
-                    "",
-                )
-                if isinstance(rec.get("images", []), list)
-                else ""
-            ),
+            "average_rating": float(rec.get("average_rating", -1.0)),
+            "rating_number": int(rec.get("rating_number", -1)),
+            "price": float(rec.get("price", -1.0)),
+            "details": rec.get("details", "{}"),
+            "main_hi_res_image": rec.get("main_hi_res_image", ""),
         }
         batch.append(props)
-        if len(batch) == 100:
+        if len(batch) == 500:
             collection.data.insert_many(batch)
             inserted_products += len(batch)
             batch.clear()

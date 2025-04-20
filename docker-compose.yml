@@ -7,8 +7,7 @@ services:
     depends_on:
       - backend
     container_name: frontend
-    # volumes:
-    #   - ./frontend/build:/usr/share/nginx/html
+
 
   backend:
     build: ./backend
