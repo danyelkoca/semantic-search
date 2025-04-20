@@ -4,7 +4,7 @@ export const load = async ({ params, fetch }) => {
   const productID = params.slug;
   console.log(productID)
 
-  const res = await fetch(`/api/products?product_id=${encodeURIComponent(productID)}`);
+  const res = await fetch(`/api/products/${encodeURIComponent(productID)}`);
 
   if (!res.ok) {
     throw error(404, "Product not found");

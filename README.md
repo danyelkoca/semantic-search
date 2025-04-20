@@ -1,7 +1,6 @@
 # Semantic Search Microservice
 
-This repository implements a scalable and modular semantic search microservice for an e-commerce fashion catalog.
-Built to enable human-like search queries (e.g., "outfit for a beach vacation") rather than traditional keyword-only searches.
+This repository implements a scalable and modular semantic search microservice for an e-commerce fashion catalog. Built to enable human-like search queries (e.g., "outfit for a beach vacation") rather than traditional keyword-only searches.
 
 ---
 
@@ -13,8 +12,11 @@ Built to enable human-like search queries (e.g., "outfit for a beach vacation") 
 
 ## Live Deployment
 
-- Deployed on AWS EC2: [http://ec2-3-25-72-5.ap-southeast-2.compute.amazonaws.com/](http://ec2-3-25-72-5.ap-southeast-2.compute.amazonaws.com/)
-- Backend API (Swagger UI available at `/docs`)
+- **Frontend**: [http://ec2-3-25-72-5.ap-southeast-2.compute.amazonaws.com](http://ec2-3-25-72-5.ap-southeast-2.compute.amazonaws.com/)
+- **Backend API (Swagger UI)**: [http://ec2-3-25-72-5.ap-southeast-2.compute.amazonaws.com:8000/docs](http://ec2-3-25-72-5.ap-southeast-2.compute.amazonaws.com:8000/docs)
+
+> **Note:**
+> Normally, backend APIs are not exposed publicly for security reasons. However, I have temporarily exposed it to facilitate easy experimentation during evaluation.
 
 ---
 
@@ -33,6 +35,52 @@ Components:
 
 ---
 
+## API Endpoints
+
+The microservice offers several endpoints for enhanced functionality:
+
+| Endpoint               | Method | Description                                              |
+|------------------------|--------|----------------------------------------------------------|
+| `/search`              | GET    | Main endpoint for semantic, hybrid, or keyword search.   |
+| `/products/{product_id}` | GET    | Specific product lookup by ID.                           |
+| `/metrics`             | GET    | Exposes service metrics (prometheus format).             |
+| `/best-sellers`        | GET    | Returns a curated list of best-selling products.         |
+| `/trending`            | GET    | Returns a curated list of trending products.             |
+
+### `/search` Endpoint
+
+**Parameters:**
+| Name         | Type    | Required | Default  | Description                                                  |
+|--------------|---------|----------|----------|--------------------------------------------------------------|
+| `query`      | string  | No       | ""       | Search query in natural language.                           |
+| `query_type` | string  | No       | "vector" | `"vector"`, `"keyword"`, or `"hybrid"` search types supported.|
+
+**Example:**
+
+```bash
+curl -X 'GET' \
+  'http://localhost:8000/search?query=outfit%20for%20summer&query_type=hybrid' \
+  -H 'accept: application/json'
+```
+
+**Response Example (shortened):**
+```json
+{
+  "ok": true,
+  "products": [
+    {
+      "title": "Floerns Women's Two Piece Outfit",
+      "price": 38.99,
+      "average_rating": 3.7,
+      "rating_number": 1502
+    },
+    ...
+  ]
+}
+```
+
+---
+
 ## Search Modes
 
 The system supports three search types:
@@ -42,33 +90,6 @@ The system supports three search types:
 - **Hybrid**: Combination of vector + keyword scores
 
 The search type is configurable via query parameters.
-
----
-
-## Example Usage
-
-Query the API directly:
-
-```bash
-curl -X 'GET'   'http://localhost:8000/products?query=Beach%20Outfit%20for%20summer&query_type=vector'   -H 'accept: application/json'
-```
-
-Example response (shortened):
-
-```json
-{
-  "ok": true,
-  "products": [
-    {
-      "title": "Floerns Women's Two Piece Outfit Floral Off Shoulder Drawstring Crop Top and Skirt Set",
-      "price": 38.99,
-      "average_rating": 3.7,
-      "rating_number": 1502
-    },
-    ...
-  ]
-}
-```
 
 ---
 

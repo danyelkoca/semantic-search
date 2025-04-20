@@ -1,24 +1,6 @@
 
 import { backendReady } from "$stores/main";
 
-export async function fetchProducts(query = "") {
-    const endpoint = query ? `/api/products?query=${encodeURIComponent(query)}` : `api/products`;
-    try {
-        const res = await fetch(endpoint);
-        const data = await res.json();
-        console.log(data);
-        if (data.ok) {
-            return data.products;
-        }
-        return [];
-    } catch (error) {
-        console.log("Products not fetched yet (backend might not be ready)");
-        return [];
-    }
-}
-
-
-
 export async function waitForBackendReady() {
 
     while (true) {

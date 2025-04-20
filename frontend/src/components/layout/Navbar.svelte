@@ -10,7 +10,7 @@
   async function handleSearch() {
     if (searchQuery.trim() === "") return;
     isSearching = true;
-    await goto(`/products?query=${encodeURIComponent(searchQuery.trim())}&query_type=${queryType}`);
+    await goto(`/search?query=${encodeURIComponent(searchQuery.trim())}&query_type=${queryType}`);
     if (searchQuery.trim()) {
       pastQueries.update((queries) => {
         const filtered = queries.filter((q) => q !== searchQuery.trim());
