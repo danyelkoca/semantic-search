@@ -12,21 +12,18 @@ from starlette.status import HTTP_500_INTERNAL_SERVER_ERROR
 
 from app.init_db import initialize_database
 from app.logger_setup import logger
-from app.utils import get_redis_client, get_weaviate_client
+from app.utils import get_weaviate_client
 
 
 @asynccontextmanager
 async def lifespan(app: FastAPI):
-    client = get_redis_client()
     try:
-        await client.flushdb()
-        logger.info("Cache cleared successfully at startup")
-
+        # Check whether DB needs to be initialized
         await asyncio.gather(
             asyncio.to_thread(initialize_database),
         )
     except Exception as e:
-        logger.error(f"Error clearing Redis cache on startup: {e}")
+        logger.error(f"Error during application startup: {str(e)}", exc_info=True)
     yield
     try:
         client = get_weaviate_client()
