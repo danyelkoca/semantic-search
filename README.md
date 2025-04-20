@@ -16,7 +16,7 @@ The microservice:
 
 ## Architecture
 
-![Semantic Search Architecture](docs/architecture.jpeg)
+![Semantic Search Architecture](docs/architecture.png)
 
 The system includes:
 
@@ -116,7 +116,7 @@ This project includes a full preprocessing pipeline for the Amazon Fashion datas
   - Concatenated multi-part descriptions into a single string.
 - **Data Optimization**:
   - Converted columns to more memory-efficient data types (`float32`, `int32`, `category`).
-  - Dropped 5% of rows randomly to stay within GitHub’s file size limits.
+  - % of rows randomly to stay within GitHub’s file size limits.
 - **Data Export**:
   - Saved the cleaned dataset as a compressed CSV (`products.csv.zip`) under 100MB.
 
