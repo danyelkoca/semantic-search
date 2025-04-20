@@ -4,19 +4,20 @@ This repository implements a scalable and modular semantic search microservice f
 
 ---
 
-## Repository
+## Live Deployment
 
-- GitHub: [semantic-search](https://github.com/danyelkoca/semantic-search)
+- **Frontend**: [Live UI](http://ec2-3-25-72-5.ap-southeast-2.compute.amazonaws.com/)
+  - Use the Search button to search by "vector", "keyword", or "hybrid" methods.
+- **Backend**: [Swagger UI](http://ec2-3-25-72-5.ap-southeast-2.compute.amazonaws.com:8000/docs)
+  - Main functionality is at the `/search` endpoint supporting all search modes.
+
+> **Note:** Backend APIs are temporarily public for evaluation purposes.
 
 ---
 
-## Live Deployment
+## Repository
 
-- **Frontend**: [http://ec2-3-25-72-5.ap-southeast-2.compute.amazonaws.com](http://ec2-3-25-72-5.ap-southeast-2.compute.amazonaws.com/)
-- **Backend API (Swagger UI)**: [http://ec2-3-25-72-5.ap-southeast-2.compute.amazonaws.com:8000/docs](http://ec2-3-25-72-5.ap-southeast-2.compute.amazonaws.com:8000/docs)
-
-> **Note:**
-> Normally, backend APIs are not exposed publicly for security reasons. However, I have temporarily exposed it to facilitate easy experimentation during evaluation.
+- GitHub: [semantic-search](https://github.com/danyelkoca/semantic-search)
 
 ---
 
@@ -39,21 +40,23 @@ Components:
 
 The microservice offers several endpoints for enhanced functionality:
 
-| Endpoint               | Method | Description                                              |
-|------------------------|--------|----------------------------------------------------------|
-| `/search`              | GET    | Main endpoint for semantic, hybrid, or keyword search.   |
-| `/products/{product_id}` | GET    | Specific product lookup by ID.                           |
-| `/metrics`             | GET    | Exposes service metrics (prometheus format).             |
-| `/best-sellers`        | GET    | Returns a curated list of best-selling products.         |
-| `/trending`            | GET    | Returns a curated list of trending products.             |
+| Endpoint                   | Method | Description                                            |
+| -------------------------- | ------ | ------------------------------------------------------ |
+| `/search`                | GET    | Main endpoint for semantic, hybrid, or keyword search. |
+| `/products/{product_id}` | GET    | Specific product lookup by ID.                         |
+| `/metrics`               | GET    | Exposes service metrics (Prometheus format).           |
+| `/best-sellers`          | GET    | Returns a curated list of best-selling products.       |
+| `/trending`              | GET    | Returns a curated list of trending products.           |
+| `/health`                | GET    | Health check endpoint for the service.                 |
 
 ### `/search` Endpoint
 
 **Parameters:**
-| Name         | Type    | Required | Default  | Description                                                  |
-|--------------|---------|----------|----------|--------------------------------------------------------------|
-| `query`      | string  | No       | ""       | Search query in natural language.                           |
-| `query_type` | string  | No       | "vector" | `"vector"`, `"keyword"`, or `"hybrid"` search types supported.|
+
+| Name           | Type   | Required | Default  | Description                                                          |
+| -------------- | ------ | -------- | -------- | -------------------------------------------------------------------- |
+| `query`      | string | No       | ""       | Search query in natural language.                                    |
+| `query_type` | string | No       | "vector" | `"vector"`, `"keyword"`, or `"hybrid"` search types supported. |
 
 **Example:**
 
@@ -64,6 +67,7 @@ curl -X 'GET' \
 ```
 
 **Response Example (shortened):**
+
 ```json
 {
   "ok": true,
@@ -103,10 +107,16 @@ The search type is configurable via query parameters.
 
 ## Setup (Local)
 
+**Requirements:**
+- [Docker Desktop](https://www.docker.com/products/docker-desktop/) (includes Docker and Docker Compose)
+- [Git](https://git-scm.com/) (to clone the repository)
+- Internet connection (to pull Docker images)
+
+**Steps:**
 ```bash
 git clone https://github.com/danyelkoca/semantic-search.git
 cd semantic-search
-pip install -r requirements-dev.txt
+cp .env.example .env  # Create your local environment file
 docker-compose up --build
 ```
 
