@@ -14,12 +14,18 @@ async def health_check():
     try:
         redis_status = "ok"
         weaviate_status = "ok"
+        ingestion_complete = get_ingestion_status()
+
+        logger.info("Health check passed")
         return {
             "ok": True,
             "redis": redis_status,
             "weaviate": weaviate_status,
-            "ingestion_complete": get_ingestion_status(),
+            "ingestion_complete": ingestion_complete,
         }
     except Exception as e:
         logger.error(f"Health check failed: {e}")
-        return JSONResponse(status_code=500, content={"ok": False})
+        return JSONResponse(
+            status_code=500,
+            content={"ok": False, "error": "Health check failed"},
+        )

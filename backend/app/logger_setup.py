@@ -19,7 +19,7 @@ class JsonFormatter(logging.Formatter):
             "message": record.getMessage(),
             "logger": record.name,
         }
-        return json.dumps(log_obj)
+        return json.dumps(log_obj, ensure_ascii=False)
 
 
 # --- Single App Logger ---

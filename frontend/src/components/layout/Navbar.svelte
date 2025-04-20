@@ -1,47 +1,30 @@
 <script>
-  import { products } from "$stores/main";
-  import { fetchProducts } from "$utils/db";
   import { goto } from "$app/navigation";
-
-  let debounceTimeout;
-  let isMenuOpen = false;
-
   import { pastQueries } from "$stores/main";
-  function handleInput(query) {
-    clearTimeout(debounceTimeout);
-    debounceTimeout = setTimeout(async () => {
-      let fetchedProducts = await fetchProducts(query);
-      products.set(fetchedProducts);
-      goto("/");
-    }, 500); // Adjust the debounce time as needed
-  }
+  import { Circle } from "svelte-loading-spinners";
+  let isMenuOpen = false;
+  let searchQuery = "";
+  let queryType = "vector";
+  let isSearching = false;
 
-  function handleBlur(query) {
-    clearTimeout(debounceTimeout);
-    debounceTimeout = setTimeout(() => {
-      // Strip whitespace before adding to storedQueries
-      let trimmedQuery = query.trim();
-
-      // Update pastQueries in localStorage and writable store if trimmedQuery is not empty
-      if (trimmedQuery) {
-        let storedQueries = JSON.parse(localStorage.getItem("pastQueries")) || [];
-        // Remove the query if it already exists to avoid duplicates
-        storedQueries = storedQueries.filter((q) => q !== trimmedQuery);
-        // Push the query to the top of the list
-        storedQueries.unshift(trimmedQuery);
-        // Keep only the latest 100 queries
-        storedQueries = storedQueries.slice(0, 100);
-        localStorage.setItem("pastQueries", JSON.stringify(storedQueries));
-        pastQueries.set(storedQueries);
-      }
-    }, 500); // Add a 500 ms delay
+  async function handleSearch() {
+    if (searchQuery.trim() === "") return;
+    isSearching = true;
+    await goto(`/products?query=${encodeURIComponent(searchQuery.trim())}&query_type=${queryType}`);
+    if (searchQuery.trim()) {
+      pastQueries.update((queries) => {
+        const filtered = queries.filter((q) => q !== searchQuery.trim());
+        const updated = [searchQuery.trim(), ...filtered].slice(0, 5);
+        localStorage.setItem("pastQueries", JSON.stringify(updated));
+        return updated;
+      });
+    }
+    isSearching = false;
   }
 
   function toggleMenu() {
     isMenuOpen = !isMenuOpen;
   }
-
-  let showSuggestions = false;
 </script>
 
 <header class="bg-white border-b border-[1px] border-slate-200 top-0 z-10">
@@ -50,27 +33,50 @@
       <span class="hidden sm:inline">metro</span>
       <span class="sm:hidden">m</span>
     </a>
-    <div class="relative">
-      <input
-        type="text"
-        placeholder="Search..."
-        class="px-4 py-2 grow rounded-full w-full mx-auto max-w-[500px] sm:min-w-[300px] md:min-w-[400px] lg:min-w-[500px] border-slate-200 shadow-lg border"
-        on:input={(event) => handleInput(event.currentTarget.value)}
-        on:focus={() => (showSuggestions = true)}
-        on:blur={(event) => {
-          handleBlur(event.currentTarget.value);
-          setTimeout(() => (showSuggestions = false), 200);
-        }}
-      />
-      {#if showSuggestions && $pastQueries.length > 0}
-        <ul class="absolute bg-white border border-slate-200 rounded-md mt-1 w-full max-w-[300px] z-10">
-          {#each $pastQueries.slice(0, 5) as query}
-            <li class="px-2 py-1 text-xs hover:bg-slate-100 cursor-pointer" on:click={() => handleInput(query)}>
-              {query}
-            </li>
-          {/each}
-        </ul>
-      {/if}
+    <div class="relative flex flex-col gap-2">
+      <form class="flex items-center gap-2" on:submit|preventDefault={handleSearch}>
+        <input
+          type="text"
+          placeholder="Search..."
+          class="h-10 px-4 rounded-lg grow w-full mx-auto max-w-[500px] sm:min-w-[300px] md:min-w-[400px] lg:min-w-[500px] border-slate-200 border"
+          bind:value={searchQuery}
+          required
+        />
+        <select bind:value={queryType} class="h-10 px-3 rounded-lg border border-slate-200 bg-white text-slate-700 text-sm">
+          <option value="keyword">Keyword</option>
+          <option selected value="vector">Vector</option>
+          <option value="hybrid">Hybrid</option>
+        </select>
+        <button
+          disabled={isSearching}
+          type="submit"
+          class="h-10 bg-sky-900 cursor-pointer text-white px-4 rounded-lg hover:bg-sky-700 transition flex items-center justify-center"
+        >
+          {#if isSearching}
+            <Circle size="20" color="#ffffff" unit="px" duration="1.2s" />
+          {:else}
+            <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 1024 1024" class="h-5 w-5" fill="white">
+              <path
+                d="M448 768A320 320 0 1 0 448 128a320 320 0 0 0 0 640z m297.344-76.992l214.592 214.592-54.336 54.336-214.592-214.592a384 384 0 1 1 54.336-54.336z"
+              />
+            </svg>
+          {/if}
+        </button>
+      </form>
+
+      <div class="flex flex-wrap text-xs text-slate-600">
+        {#each $pastQueries.slice(0, 5) as query}
+          <button
+            class="mx-1 cursor-pointer text-sky-600 hover:underline"
+            on:click={() => {
+              searchQuery = query;
+              handleSearch();
+            }}
+          >
+            {query}
+          </button>
+        {/each}
+      </div>
     </div>
     <button class="lg:hidden text-sky-900 text-4xl cursor-pointer" on:click={toggleMenu} aria-label="Toggle menu"> ☰ </button>
     <nav class="hidden lg:flex space-x-4">

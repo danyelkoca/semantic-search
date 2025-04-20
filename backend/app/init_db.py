@@ -61,14 +61,6 @@ def initialize_database():
 
     wait_for_schema_ready(client)
 
-    force_initialize = os.getenv("FORCE_INITIALIZE_DB", "false").lower() == "true"
-
-    if force_initialize and "Product" in client.collections.list_all():
-        client.collections.delete("Product")
-        logger.info(
-            "✅ Deleted 'Product' collection as requested by FORCE_INITIALIZE_DB"
-        )
-
     if "Product" not in client.collections.list_all():
         collection = client.collections.create(
             name="Product",
@@ -132,13 +124,19 @@ def initialize_database():
         populate_collection(collection)
     else:
         collection = client.collections.get("Product")
-        if collection.aggregate.over_all(total_count=True).total_count == 0:
+        total_count = collection.aggregate.over_all(total_count=True).total_count
+        logger.info(
+            f"📦 Found {total_count} products in existing 'Product' collection."
+        )
+        if total_count == 0:
             logger.info(
                 "✅ Found existing 'Product' collection with zero objects; populating."
             )
             populate_collection(collection)
         else:
-            logger.info("DB already initialized; skipping ingestion.")
+            logger.info(
+                "DB already initialized with existing data; skipping ingestion."
+            )
             set_ingestion_complete()
 
     client.close()
@@ -160,65 +158,80 @@ def populate_collection(collection):
     logger.info("✅ Successfully downloaded and opened raw gzip file.")
 
     if no_of_products:
-        logger.info(f"🔢 Will ingest up to {no_of_products} products as configured.")
+        logger.info(f"🔢 Will ingest {no_of_products} products as configured.")
     else:
         logger.info("🔢 Will ingest all available products.")
 
-    # Full download is necessary to read the lines, but ingestion is limited by no_of_products
+    with gzip.GzipFile(fileobj=resp.raw) as gz:
+        records = [json.loads(line.decode("utf-8")) for line in gz]
+        records = [r for r in records if r.get("price") is not None]
+        logger.info(
+            f"📦 Found {len(records)} products with price available for ingestion."
+        )
+
+    if no_of_products and no_of_products > len(records):
+        logger.warning(
+            f"⚠️ NO_OF_PRODUCTS ({no_of_products}) exceeds available ({len(records)})."
+        )
+        logger.warning(f"⚠️ Adjusting NO_OF_PRODUCTS to {len(records)}.")
+        no_of_products = len(records)
+
+    # Sort records by rating_number descending
+    records.sort(key=lambda x: x.get("rating_number", 0), reverse=True)
+
+    # Limit if no_of_products specified
+    if no_of_products:
+        records = records[:no_of_products]
+
     inserted_products = 0
     batch = []
-    with gzip.GzipFile(fileobj=resp.raw) as gz:
-        for i, line in enumerate(gz, start=1):
-            if no_of_products is not None and i > no_of_products:
-                break
-            rec = json.loads(line.decode("utf-8"))
-
-            props = {
-                "product_id": i,
-                "title": rec.get("title", ""),
-                "store": rec.get("store", ""),
-                "description": (
-                    " ".join(rec["description"])
-                    if isinstance(rec.get("description", []), list)
-                    else rec.get("description", "")
-                ),
-                "features": rec.get("features", []),
-                "average_rating": (
-                    float(rec.get("average_rating"))
-                    if rec.get("average_rating") is not None
-                    else -1.0
-                ),
-                "rating_number": (
-                    int(rec.get("rating_number"))
-                    if rec.get("rating_number") is not None
-                    else -1
-                ),
-                "price": (
-                    float(rec.get("price")) if rec.get("price") is not None else -1.0
-                ),
-                "details": json.dumps(rec.get("details", {})),
-                "main_hi_res_image": (
-                    next(
-                        (
-                            (img.get("hi_res") or "").replace(
-                                "https://m.media-amazon.com/images/I/", ""
-                            )
-                            for img in rec.get("images", [])
-                            if img.get("variant", "").lower() == "main"
-                        ),
-                        "",
-                    )
-                    if isinstance(rec.get("images", []), list)
-                    else ""
-                ),
-            }
-            batch.append(props)
-            if len(batch) == 50:
-                collection.data.insert_many(batch)
-                inserted_products += len(batch)
-                batch.clear()
-                if inserted_products % 1000 == 0:
-                    logger.info(f"Ingested {inserted_products} products")
+    for i, rec in enumerate(records, start=1):
+        props = {
+            "product_id": i,
+            "title": rec.get("title", ""),
+            "store": rec.get("store", ""),
+            "description": (
+                " ".join(rec["description"])
+                if isinstance(rec.get("description", []), list)
+                else rec.get("description", "")
+            ),
+            "features": rec.get("features", []),
+            "average_rating": (
+                float(rec.get("average_rating"))
+                if rec.get("average_rating") is not None
+                else -1.0
+            ),
+            "rating_number": (
+                int(rec.get("rating_number"))
+                if rec.get("rating_number") is not None
+                else -1
+            ),
+            "price": (
+                float(rec.get("price")) if rec.get("price") is not None else -1.0
+            ),
+            "details": json.dumps(rec.get("details", {})),
+            "main_hi_res_image": (
+                next(
+                    (
+                        (img.get("hi_res") or "").replace(
+                            "https://m.media-amazon.com/images/I/", ""
+                        )
+                        for img in rec.get("images", [])
+                        if img.get("variant", "").lower() == "main"
+                    ),
+                    "",
+                )
+                if isinstance(rec.get("images", []), list)
+                else ""
+            ),
+        }
+        batch.append(props)
+        if len(batch) == 100:
+            collection.data.insert_many(batch)
+            inserted_products += len(batch)
+            batch.clear()
+            if inserted_products % 1000 == 0:
+                logger.info(f"Ingested {inserted_products} products")
 
     if batch:
         collection.data.insert_many(batch)
