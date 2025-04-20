@@ -62,11 +62,20 @@ services:
       - "9090:9090"
     volumes:
       - ./prometheus.yml:/etc/prometheus/prometheus.yml
+    environment:
+      - LOG_LEVEL=warn
+    container_name: prometheus
 
   grafana:
     image: grafana/grafana
     ports:
       - "3000:3000"
- 
+    container_name: grafana
+    environment:
+      - GF_LOG_LEVEL=warn
+      - GF_LIVE_FEATURE_TOGGLE=false
+      - GF_AUTH_ANONYMOUS_ENABLED=true
+      - GF_AUTH_ANONYMOUS_ORG_ROLE=Viewer
+
 volumes:
   weaviate_data:

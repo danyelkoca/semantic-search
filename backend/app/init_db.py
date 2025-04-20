@@ -16,6 +16,7 @@ dotenv.load_dotenv()
 # Silence noisy libraries
 logging.getLogger("httpx").setLevel(logging.WARNING)
 logging.getLogger("weaviate").setLevel(logging.WARNING)
+logging.getLogger("grafana").setLevel(logging.WARNING)
 
 ingestion_complete = False
 
