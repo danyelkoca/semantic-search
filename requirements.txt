@@ -26,3 +26,6 @@ starlette
 
 # Requests library for making HTTP requests
 requests
+
+# Prometheus FastAPI Instrumentator for monitoring FastAPI applications
+prometheus-fastapi-instrumentator

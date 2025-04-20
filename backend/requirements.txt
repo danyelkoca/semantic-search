@@ -7,3 +7,4 @@ python-dotenv
 redis
 starlette
 requests
+prometheus-fastapi-instrumentator
