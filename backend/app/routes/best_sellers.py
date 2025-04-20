@@ -11,9 +11,20 @@ from app.utils import get_product_collection, get_redis_client, rate_limit
 router = APIRouter()
 
 
-@router.get("/best-sellers")
+@router.get(
+    "/best-sellers",
+    summary="Get Best Sellers",
+    description="Fetches the top best-selling products based on rating and number of reviews.",
+    response_description="A list of best-selling products.",
+)
 @rate_limit("60/minute")
 async def get_best_sellers(request: Request):
+    """
+    Fetches best-selling products.
+
+    - Returns top products sorted by number of ratings and average rating.
+    - Caches the result for faster retrieval.
+    """
     logger.info("Fetching best-sellers")
     try:
         cached = await get_redis_client().get("best_sellers")

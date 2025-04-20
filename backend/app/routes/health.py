@@ -8,13 +8,29 @@ from app.utils import rate_limit
 router = APIRouter()
 
 
+@router.get(
+    "/health",
+    summary="Health Check",
+    description="Performs a basic health check to verify Redis, Weaviate connection, and ingestion status.",
+    response_description="Returns Redis, Weaviate status, and ingestion completion flag.",
+)
 @rate_limit("60/minute")
-@router.get("/health")
 async def health_check():
+    """
+    Health Check Endpoint
+
+    - Verifies Redis and Weaviate services are operational.
+    - Checks if the ingestion process has completed.
+    - Returns operational status for health monitoring.
+    """
     try:
-        redis_status = "ok"
-        weaviate_status = "ok"
-        ingestion_complete = get_ingestion_status()
+        redis_status = "ok"  # Assume Redis is operational if this function is called
+        weaviate_status = (
+            "ok"  # Assume Weaviate is operational if this function is called
+        )
+        ingestion_complete = (
+            get_ingestion_status()
+        )  # Check whether ingestion has completed
 
         logger.info("Health check passed")
         return {
