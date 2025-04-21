@@ -126,9 +126,25 @@ cp .env.example .env  # Create your local environment file
 docker-compose up --build
 ```
 
+**Important Note:**
+
+- When you first launch the application, the backend will initialize the database by inserting 1,000 products into Weaviate.
+- During this process, you will see messages like:
+
+  ```
+  backend     | {"timestamp": "...", "level": "INFO", "message": "✅ Inserted 50 products so far...", "logger": "semantic-search"}
+  ```
+- Once ingestion is complete, you will see:
+
+  ```
+  backend     | {"timestamp": "...", "level": "INFO", "message": "✅ Finished ingestion. Total products inserted: 1000", "logger": "semantic-search"}
+  ```
+- **Please wait until ingestion is fully completed before using the frontend.**
+
 Then open [http://localhost](http://localhost) in your browser.
 
 Example test query:
+
 - Query: `outfit for beach vacation`
 - Mode: `hybrid`
 

@@ -5,7 +5,8 @@ import os
 
 import dotenv
 import weaviate
-from weaviate.classes.config import Configure, DataType, Property
+from weaviate.classes.config import Configure, DataType
+from weaviate.collections.classes.config import Property
 
 from app.logger_setup import logger  # Import your logger cleanly
 
@@ -59,6 +60,10 @@ def initialize_database():
     )
 
     wait_for_schema_ready(client)
+
+    # TODO: DELETE THIS LINE AFTER TESTING
+    client.collections.delete("Product")
+    logger.info("✅ Removed Product collection.")
 
     if "Product" not in client.collections.list_all():
         collection = client.collections.create(
@@ -154,8 +159,10 @@ def populate_collection(collection):
 
     logger.info(f"📦 Found {len(records)} products available for ingestion.")
 
-    inserted_products = 0
+    batch_size = 50
     batch = []
+    inserted_products = 0
+
     for i, rec in enumerate(records, start=1):
         props = {
             "product_id": i,
@@ -170,16 +177,17 @@ def populate_collection(collection):
             "main_hi_res_image": rec.get("main_hi_res_image", ""),
         }
         batch.append(props)
-        if len(batch) == 500:
+
+        if len(batch) == batch_size:
             collection.data.insert_many(batch)
             inserted_products += len(batch)
-            batch.clear()
-            if inserted_products % 1000 == 0:
-                logger.info(f"Ingested {inserted_products} products")
+            logger.info(f"✅ Inserted {inserted_products} products so far...")
+            batch = []
 
     if batch:
         collection.data.insert_many(batch)
         inserted_products += len(batch)
+        logger.info(f"✅ Inserted {inserted_products} products in total.")
 
     logger.info(f"✅ Finished ingestion. Total products inserted: {inserted_products}")
     set_ingestion_complete()
