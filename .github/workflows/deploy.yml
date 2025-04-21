@@ -22,6 +22,7 @@ jobs:
         username: ${{ secrets.EC2_USER }}
         key: ${{ secrets.EC2_SSH_PRIVATE_KEY }}
         script: |
+          mkdir -p semantic-search
           cd semantic-search
           git pull origin main
           docker-compose down
