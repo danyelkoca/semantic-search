@@ -132,7 +132,7 @@ docker-compose up --build
 - During this process, you will see messages like:
 
   ```
-  backend     | {"timestamp": "...", "level": "INFO", "message": "✅ Inserted 50 products so far...", "logger": "semantic-search"}
+  backend     | {"timestamp": "...", "level": "INFO", "message": "Inserted 100/1000 products (10.0%) so far...", "logger": "semantic-search"}
   ```
 - Once ingestion is complete, you will see:
 
