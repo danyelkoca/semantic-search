@@ -41,7 +41,7 @@ def wait_for_schema_ready(client, retries=30, delay=2):
     for i in range(retries):
         try:
             client.collections.list_all()
-            logger.info("✅ Weaviate schema is available.")
+            logger.info("Weaviate schema is available.")
             return
         except weaviate.exceptions.InsufficientPermissionsError:
             logger.warning(f"⏳ Weaviate not ready (attempt {i+1}/{retries})")
@@ -120,17 +120,15 @@ def initialize_database():
                 model="text-embedding-3-small"
             ),
         )
-        logger.info("✅ Created 'Product' schema.")
+        logger.info("Created 'Product' schema.")
         populate_collection(collection)
     else:
         collection = client.collections.get("Product")
         total_count = collection.aggregate.over_all(total_count=True).total_count
-        logger.info(
-            f"📦 Found {total_count} products in existing 'Product' collection."
-        )
+        logger.info(f"Found {total_count} products in existing 'Product' collection.")
         if total_count == 0:
             logger.info(
-                "✅ Found existing 'Product' collection with zero objects; populating."
+                "Found existing 'Product' collection with zero objects; populating."
             )
             populate_collection(collection)
         else:
@@ -140,7 +138,7 @@ def initialize_database():
             set_ingestion_complete()
 
     client.close()
-    logger.info("✅ Weaviate client closed.")
+    logger.info("Weaviate client closed.")
 
 
 def populate_collection(collection):
@@ -148,12 +146,12 @@ def populate_collection(collection):
     if not os.path.exists(local_path):
         raise FileNotFoundError(f"Dataset file not found at {local_path}")
 
-    logger.info(f"🔍 Reading data from local {local_path}")
+    logger.info(f"Reading data from local {local_path}")
 
     with gzip.open(local_path, "rt", encoding="utf-8") as gz:
         records = [json.loads(line) for line in gz]
 
-    logger.info(f"📦 Found {len(records)} products available for ingestion.")
+    logger.info(f"Found {len(records)} products available for ingestion.")
 
     batch_size = 50
     batch = []
@@ -177,13 +175,18 @@ def populate_collection(collection):
         if len(batch) == batch_size:
             collection.data.insert_many(batch)
             inserted_products += len(batch)
-            logger.info(f"✅ Inserted {inserted_products} products so far...")
+            percentage = (inserted_products / len(records)) * 100
+            logger.info(
+                f"Inserted {inserted_products}/{len(records)} products ({percentage:.1f}%) so far..."
+            )
             batch = []
 
     if batch:
         collection.data.insert_many(batch)
         inserted_products += len(batch)
-        logger.info(f"✅ Inserted {inserted_products} products in total.")
+        logger.info(
+            f"Inserted {inserted_products}/{len(records)} products (100%) in total."
+        )
 
     logger.info(f"✅ Finished ingestion. Total products inserted: {inserted_products}")
     set_ingestion_complete()

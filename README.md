@@ -146,7 +146,7 @@ Then open [http://localhost](http://localhost) in your browser.
 Example test query:
 
 - Query: `outfit for beach vacation`
-- Mode: `hybrid`
+- Mode: `vector`
 
 ## Key Design Decisions
 
