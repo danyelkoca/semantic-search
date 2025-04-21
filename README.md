@@ -117,7 +117,7 @@ Access the frontend UI or explore APIs via Swagger at `/docs`, both available th
 git clone https://github.com/danyelkoca/semantic-search.git
 cd semantic-search
 # If you downloaded the project as a ZIP file instead of cloning via Git, skip the 'git clone' step.
-# Just unzip and navigate into the extracted 'semantic-search' folder.
+# Just unzip and navigate into the extracted folder (e.g., 'semantic-search' or 'semantic-search-main').
 cp .env.example .env  # Create your local environment file
 ```
 
