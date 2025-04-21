@@ -116,6 +116,8 @@ Access the frontend UI or explore APIs via Swagger at `/docs`, both available th
 ```bash
 git clone https://github.com/danyelkoca/semantic-search.git
 cd semantic-search
+# If you downloaded the project as a ZIP file instead of cloning via Git, skip the 'git clone' step.
+# Just unzip and navigate into the extracted 'semantic-search' folder.
 cp .env.example .env  # Create your local environment file
 ```
 
@@ -175,7 +177,19 @@ Example test query:
 
 ## Additional Notes
 
-- Automatic database initialization (`init_db.py`).
-- Embeddings: OpenAI `text-embedding-3-small`.
-- Redis caching for faster search results.
-- Strict input validation and optimized API response formats.
+- Automatic database initialization (`backend/app/init_db.py`) with 1,000 top products.
+- Embeddings: OpenAI `text-embedding-3-small` model.
+- Redis caching to improve performance on trending/best-seller queries.
+- Strict input validation and standardized API response formats.
+- Implemented CI/CD for automatic build and deployment to AWS EC2 using GitHub Actions.
+- Docker Compose orchestrates the local environment with FastAPI, SvelteKit, Redis, Weaviate, Prometheus, and Grafana.
+
+## Next Steps
+
+- Extend backend test coverage, including deeper mocking of Redis and Weaviate dependencies.
+- Enhance frontend tests for better UI and UX validation.
+- Implement user authentication.
+- Add monitoring alerts based on Prometheus/Grafana metrics.
+- Extend MLOps pipeline: collect user interactions (clicks, purchases) to evaluate and retrain recommendation models.
+- Explore evaluation metrics (e.g., recall@k, precision@k) to measure search and recommendation quality.
+- Conduct experiments to compare **hybrid**, **keyword**, and **vector** search effectiveness based on user behavior and offline metrics.
