@@ -21,7 +21,7 @@
   <div class="grid grid-cols-2 sm:grid-cols-3 md:grid-cols-4 xl:grid-cols-6 gap-4">
     {#each products as product (product.product_id)}
       <a href={`/products/${product.product_id}`} class="relative block group overflow-hidden rounded-lg shadow hover:shadow-lg transition">
-        {#if product.main_hi_res_image.length > 0}
+        {#if product.main_hi_res_image && typeof product.main_hi_res_image === "string" && product.main_hi_res_image.length > 0}
           <img
             src={`https://m.media-amazon.com/images/I/${product.main_hi_res_image}`}
             alt={product.title}
@@ -43,7 +43,7 @@
   <div class="grid gap-4 grid-cols-2 md:grid-cols-3 lg:grid-cols-4 2xl:grid-cols-6">
     {#each products as product (product.product_id)}
       <div class="block bg-white rounded-lg overflow-hidden shadow hover:shadow-xl hover:-translate-y-1 transition transform relative">
-        {#if product.main_hi_res_image.length > 0}
+        {#if product.main_hi_res_image && typeof product.main_hi_res_image === "string" && product.main_hi_res_image.length > 0}
           <div class="relative">
             <img
               src={`https://m.media-amazon.com/images/I/${product.main_hi_res_image}`}
