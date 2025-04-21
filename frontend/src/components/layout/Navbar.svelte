@@ -2,6 +2,8 @@
   import { goto } from "$app/navigation";
   import { pastQueries } from "$stores/main";
   import { Circle } from "svelte-loading-spinners";
+  import { onMount, onDestroy } from "svelte";
+
   let isMenuOpen = false;
   let searchQuery = "";
   let queryType = "vector";
@@ -10,8 +12,9 @@
   async function handleSearch() {
     if (searchQuery.trim() === "") return;
     isSearching = true;
-    await goto(`/search?query=${encodeURIComponent(searchQuery.trim())}&query_type=${queryType}`);
     if (searchQuery.trim()) {
+      isMenuOpen = false;
+      await goto(`/search?query=${encodeURIComponent(searchQuery.trim())}&query_type=${queryType}`);
       pastQueries.update((queries) => {
         const filtered = queries.filter((q) => q !== searchQuery.trim());
         const updated = [searchQuery.trim(), ...filtered].slice(0, 5);
@@ -25,6 +28,27 @@
   function toggleMenu() {
     isMenuOpen = !isMenuOpen;
   }
+
+  function handleOutsideClick(event) {
+    if (typeof document !== "undefined") {
+      const menu = document.querySelector("header");
+      if (isMenuOpen && menu && !menu.contains(event.target)) {
+        isMenuOpen = false;
+      }
+    }
+  }
+
+  onMount(() => {
+    if (typeof window !== "undefined" && typeof document !== "undefined") {
+      document.addEventListener("click", handleOutsideClick);
+    }
+  });
+
+  onDestroy(() => {
+    if (typeof window !== "undefined" && typeof document !== "undefined") {
+      document.removeEventListener("click", handleOutsideClick);
+    }
+  });
 </script>
 
 <header class="bg-white border-b border-[1px] border-slate-200 top-0 z-10">
@@ -67,7 +91,7 @@
       <div class="flex flex-wrap text-xs text-slate-600">
         {#each $pastQueries.slice(0, 5) as query}
           <button
-            class="mx-1 cursor-pointer text-sky-600 hover:underline"
+            class="mx-1 cursor-pointer text-sky-600 underline hover:font-bold"
             on:click={() => {
               searchQuery = query;
               handleSearch();
