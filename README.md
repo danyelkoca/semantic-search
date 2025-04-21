@@ -142,8 +142,8 @@ docker-compose up --build
   backend     | {"timestamp": "...", "level": "INFO", "message": "✅ Finished ingestion. Total products inserted: 1000", "logger": "semantic-search"}
   ```
 - **Please wait until ingestion is fully completed before using the frontend.**
-
-Then open [http://localhost](http://localhost) in your browser.
+- Docker may request permission to access files or system resources during startup. Please approve these prompts to allow the containers to function correctly.
+- Then open [http://localhost](http://localhost) in your browser.
 
 Example test query:
 
