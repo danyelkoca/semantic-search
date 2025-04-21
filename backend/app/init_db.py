@@ -61,10 +61,6 @@ def initialize_database():
 
     wait_for_schema_ready(client)
 
-    # TODO: DELETE THIS LINE AFTER TESTING
-    client.collections.delete("Product")
-    logger.info("✅ Removed Product collection.")
-
     if "Product" not in client.collections.list_all():
         collection = client.collections.create(
             name="Product",
